@@ -18,13 +18,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      - id: controller_ghcr_toLowerCase
+        run: INPUT=${{ env.CONTROLLER_IMAGE }} echo "::set-output name=lowerCaseValue::${INPUT,,}"
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.CONTROLLER_IMAGE }}
+            ${{steps.controller_ghcr_toLowerCase.outputs.lowerCaseValue}}
           tags: |
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
@@ -59,13 +60,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      - id: alertforwarder_ghcr_toLowerCase
+        run: INPUT=${{ env.ALERT_FORWARDER_IMAGE }} echo "::set-output name=lowerCaseValue::${INPUT,,}"
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.ALERT_FORWARDER_IMAGE }}
+            ${{steps.alertforwarder_ghcr_toLowerCase.outputs.lowerCaseValue}}
           tags: |
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
