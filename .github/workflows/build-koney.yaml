@@ -18,14 +18,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - id: controller_ghcr_toLowerCase
-        run: INPUT=${{ env.CONTROLLER_IMAGE }}; echo "VAR_LOWERCASE=${INPUT,,}">>${GITHUB_OUTPUT}
+
+      - name: GHCR repo to lowercase
+        id: toLowerCase
+        run: INPUT=${{ env.CONTROLLER_IMAGE }}; echo "VAR_GHCR=${INPUT,,}">>${GITHUB_OUTPUT}
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{steps.controller_ghcr_toLowerCase.outputs.VAR_LOWERCASE}}
+            ${{steps.toLowerCase.outputs.VAR_GHCR}}
           tags: |
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
@@ -52,22 +55,25 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=${{ steps.controller_ghcr_toLowerCase.outputs.VAR_LOWERCASE }}:buildcache
-          cache-to: ${{ github.event_name == 'push' && format('type=registry,ref={0}:buildcache,mode=max', steps.controller_ghcr_toLowerCase.outputs.VAR_LOWERCASE) || '' }}
+          cache-from: type=registry,ref=${{ steps.toLowerCase.outputs.VAR_GHCR }}:buildcache
+          cache-to: ${{ github.event_name == 'push' && format('type=registry,ref={0}:buildcache,mode=max', steps.toLowerCase.outputs.VAR_GHCR) || '' }}
 
   build-koney-alert-forwarder:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - id: alertforwarder_ghcr_toLowerCase
-        run: INPUT=${{ env.ALERT_FORWARDER_IMAGE }}; echo "VAR_LOWERCASE=${INPUT,,}">>${GITHUB_OUTPUT}
+
+      - name: GHCR repo to lowercase
+        id: toLowerCase
+        run: INPUT=${{ env.ALERT_FORWARDER_IMAGE }}; echo "VAR_GHCR=${INPUT,,}">>${GITHUB_OUTPUT}
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ steps.alertforwarder_ghcr_toLowerCase.outputs.VAR_LOWERCASE }}
+            ${{ steps.toLowerCase.outputs.VAR_GHCR }}
           tags: |
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
@@ -94,5 +100,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=${{ steps.alertforwarder_ghcr_toLowerCase.outputs.VAR_LOWERCASE }}:buildcache
-          cache-to: ${{ github.event_name == 'push' && format('type=registry,ref={0}:buildcache,mode=max', steps.alertforwarder_ghcr_toLowerCase.outputs.VAR_LOWERCASE) || '' }}
+          cache-from: type=registry,ref=${{ steps.toLowerCase.outputs.VAR_GHCR }}:buildcache
+          cache-to: ${{ github.event_name == 'push' && format('type=registry,ref={0}:buildcache,mode=max', steps.toLowerCase.outputs.VAR_GHCR) || '' }}
